@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="little steps">
+<meta name="theme-color" content="#f7efe1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>little steps</title>
+<style>
+:root{
+  --cream:#f7efe1;--card:#fffaf2;--card2:#fbf3e6;--ink:#4b4038;--soft:#8c7e70;--line:#ecdfcb;
+  --sage:#6f9a86;--sage-d:#557d6b;--sage-l:#dcebdf;--sky:#8cc8ec;--butter:#f4cf72;--peach:#f3a978;--pink:#ef8f99;--lav:#c4a8e8;
+  --shadow:0 6px 18px rgba(120,90,50,.10);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--cream);color:var(--ink);
+  font-family:ui-rounded,"SF Pro Rounded","Nunito",-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{overscroll-behavior-y:none}
+.sky{position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#fde6c8 0%,#f7efe1 38%,#eef2e4 100%)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+#app{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 104px)}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.01em}
+.muted{color:var(--soft)}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.hidden{display:none!important}
+
+/* header */
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin:4px 2px 14px}
+.hdr h1{font-size:26px}
+.hdr p{margin:4px 0 0;font-size:14px;color:var(--soft)}
+.iconbtn{width:40px;height:40px;border-radius:14px;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;color:var(--sage-d)}
+.iconbtn svg{width:22px;height:22px}
+
+/* cards */
+.card{background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.card h3{font-size:17px}
+.card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.pill{font-size:13px;background:var(--sage-l);color:var(--sage-d);padding:4px 10px;border-radius:99px;font-weight:600}
+
+/* scene */
+.scene{position:relative;border-radius:28px;overflow:hidden;height:250px;margin-bottom:14px;box-shadow:var(--shadow);
+  background:linear-gradient(180deg,#f9c99a 0%,#fbdcb3 45%,#f6e9cf 70%)}
+.scene .sun{position:absolute;right:34px;top:26px;width:46px;height:46px;border-radius:50%;background:#fff1b8;box-shadow:0 0 40px 14px rgba(255,236,170,.8)}
+.scene svg.hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:120px}
+.scene .pet{position:absolute;left:50%;bottom:6px;width:170px;height:170px;transform:translateX(-50%)}
+.bubble{position:absolute;left:16px;top:16px;max-width:58%;background:#fffaf2;border-radius:18px;padding:10px 13px;font-size:14.5px;line-height:1.3;box-shadow:var(--shadow);font-weight:600}
+.bubble:after{content:"";position:absolute;bottom:-7px;left:60%;width:14px;height:14px;background:#fffaf2;transform:rotate(45deg);border-radius:3px}
+.coins{position:absolute;right:12px;bottom:12px;background:rgba(255,250,242,.9);border-radius:99px;padding:5px 11px;font-weight:700;font-size:14px}
+.lvl{position:absolute;left:12px;bottom:12px;background:rgba(255,250,242,.9);border-radius:99px;padding:5px 11px;font-weight:700;font-size:13px;color:var(--sage-d)}
+
+/* pet */
+.pet svg{width:100%;height:100%;overflow:visible}
+.pet .body{transform-origin:100px 186px;animation:idle 2.8s ease-in-out infinite}
+@keyframes idle{0%,100%{transform:scale(1,1)}50%{transform:scale(1.035,.965)}}
+.pet.hop .body{animation:hop .7s ease-out}
+@keyframes hop{0%{transform:translateY(0) scale(1,1)}20%{transform:translateY(0) scale(1.1,.88)}45%{transform:translateY(-34px) scale(.94,1.08)}75%{transform:translateY(0) scale(1.08,.92)}100%{transform:translateY(0) scale(1,1)}}
+.pet.wiggle .body{animation:wiggle .5s ease-in-out 2}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{font-size:12.5px;font-weight:700;color:var(--soft)}
+.bar{height:9px;border-radius:99px;background:#efe5d4;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;border-radius:99px;transition:width .4s}
+
+/* tasks */
+.quick{display:flex;gap:8px;margin-bottom:8px}
+.input{width:100%;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:12px 14px;font-size:16px;outline:none}
+.input:focus{border-color:var(--sage)}
+textarea.input{min-height:70px;resize:vertical}
+.task{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.check{flex:none;width:26px;height:26px;border-radius:9px;border:2px solid #cdbfa9;display:grid;place-items:center;background:#fff;transition:.2s}
+.check.on{background:var(--sage);border-color:var(--sage)}
+.check svg{width:16px;height:16px;color:#fff}
+.tbody{flex:1;min-width:0}
+.ttitle{font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.done .ttitle{text-decoration:line-through;color:var(--soft);font-weight:500}
+.tmeta{font-size:12.5px;color:var(--soft);margin-top:2px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tmeta .late{color:#d0606c;font-weight:700}
+.mini{height:5px;width:54px;border-radius:9px;background:#efe5d4;overflow:hidden;display:inline-block}
+.mini i{display:block;height:100%;background:var(--sage)}
+.pdot{width:9px;height:9px;border-radius:50%;flex:none}
+.p-low{background:#a9d4b0}.p-med{background:var(--butter)}.p-high{background:var(--pink)}
+.group-t{font-size:13px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.06em;margin:16px 4px 6px}
+.empty{text-align:center;padding:18px 8px;color:var(--soft);font-size:14.5px}
+
+/* chips & buttons */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.scroll-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin:0 -16px 6px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.scroll-chips::-webkit-scrollbar{display:none}
+.chip{padding:8px 14px;border-radius:99px;background:var(--card2);border:1.5px solid var(--line);font-size:14px;font-weight:600;white-space:nowrap}
+.chip.on{background:var(--sage-l);border-color:var(--sage);color:var(--sage-d)}
+.chip.low.on{background:#e3f1e3;border-color:#8cc59a;color:#4f8a5d}
+.chip.med.on{background:#fdf0cf;border-color:#e9bf5a;color:#a77a12}
+.chip.high.on{background:#fde0e3;border-color:#ec8e99;color:#b84b5a}
+.btn{display:block;width:100%;padding:14px;border-radius:18px;background:var(--sage);color:#fff;font-weight:700;font-size:16px;box-shadow:0 4px 0 var(--sage-d);transition:transform .1s}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--sage-d)}
+.btn.ghost{background:var(--card2);color:var(--ink);box-shadow:0 3px 0 var(--line);border:1.5px solid var(--line)}
+.btn.pink{background:var(--pink);box-shadow:0 4px 0 #cf6d78}
+.btn.sm{display:inline-block;width:auto;padding:9px 14px;font-size:14px;border-radius:14px}
+.link{color:var(--soft);font-weight:600;text-decoration:underline;font-size:14.5px;padding:8px}
+.stack>*+*{margin-top:10px}
+.fab{position:fixed;right:max(18px,calc(50% - 242px));bottom:calc(env(safe-area-inset-bottom) + 92px);width:58px;height:58px;border-radius:20px;background:var(--sage);color:#fff;font-size:32px;line-height:1;box-shadow:0 5px 0 var(--sage-d),0 10px 20px rgba(80,110,90,.3);display:grid;place-items:center;z-index:5}
+
+/* focus banner */
+.focus{background:linear-gradient(135deg,#7fae98,#5f8d79);color:#fff;border-radius:22px;padding:14px 16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.focus .t{font-size:13px;opacity:.9;font-weight:600}
+.focus .n{font-size:17px;font-weight:700;margin:2px 0 10px}
+.focus .clock{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+.focus button{background:rgba(255,255,255,.22);color:#fff;border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px}
+
+/* install hint */
+.hint{background:#fff3d6;border:1.5px dashed #e9c46a;border-radius:20px;padding:12px 14px;font-size:14px;margin-bottom:14px;line-height:1.4}
+
+/* calendar */
+.cal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cal-h h3{font-size:19px}
+.grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.wd{font-size:12px;font-weight:700;color:var(--soft);padding:4px 0}
+.day{aspect-ratio:1;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:600;font-size:15px;position:relative}
+.day.out{opacity:.3}
+.day.today{background:var(--sage-l);color:var(--sage-d)}
+.day.sel{background:var(--sage);color:#fff}
+.dots{display:flex;gap:3px;height:6px;margin-top:3px}
+.dots i{width:5px;height:5px;border-radius:50%}
+.ev{display:flex;gap:12px;align-items:center;padding:11px 2px;border-bottom:1px solid var(--line)}
+.ev:last-child{border-bottom:0}
+.ev .ic{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;font-size:19px;flex:none}
+
+/* buddy */
+.buddy-stage{position:relative;height:260px;border-radius:28px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow);
+  background:radial-gradient(ellipse at 50% 120%,#cfe3c4 0 45%,transparent 46%),linear-gradient(180deg,#d9ecf5,#f4ead8)}
+.buddy-stage .pet{position:absolute;left:50%;bottom:10px;width:190px;height:190px;transform:translateX(-50%)}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--line)}
+.sw.on{box-shadow:0 0 0 3px var(--sage)}
+.lbl{font-size:13px;font-weight:700;color:var(--soft);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.05em}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.act{background:var(--card);border-radius:20px;padding:12px 6px;text-align:center;box-shadow:var(--shadow);font-weight:700;font-size:14px}
+.act .e{font-size:28px;display:block;margin-bottom:4px}
+.treat{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:var(--card2);border:1.5px solid var(--line);width:100%;text-align:left}
+.treat .e{font-size:30px}
+.treat b{display:block}
+.treat small{color:var(--soft)}
+.treat .cost{margin-left:auto;font-weight:800}
+.treat:disabled{opacity:.45}
+
+/* tab bar */
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 10px);width:calc(100% - 32px);max-width:488px;
+  background:rgba(255,250,242,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:26px;box-shadow:0 8px 24px rgba(110,80,40,.16);
+  display:grid;grid-template-columns:repeat(4,1fr);padding:8px;z-index:10}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;border-radius:18px;color:#a8998a;font-size:11.5px;font-weight:700}
+.tab svg{width:24px;height:24px}
+.tab.on{background:var(--sage-l);color:var(--sage-d)}
+
+/* sheet */
+.backdrop{position:fixed;inset:0;background:rgba(60,45,30,.35);z-index:20;opacity:0;transition:opacity .25s}
+.backdrop.show{opacity:1}
+.sheet{position:fixed;left:50%;bottom:0;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;background:var(--cream);border-radius:28px 28px 0 0;z-index:21;
+  padding:10px 18px calc(env(safe-area-inset-bottom) + 22px);transform:translate(-50%,100%);transition:transform .3s cubic-bezier(.2,.9,.3,1)}
+.sheet.show{transform:translate(-50%,0)}
+.grab{width:42px;height:5px;border-radius:9px;background:#dccdb7;margin:0 auto 12px}
+.sheet h2{font-size:21px;margin-bottom:12px}
+.sheet label.f{display:block;font-size:13px;font-weight:700;color:var(--soft);margin:14px 0 7px;text-transform:uppercase;letter-spacing:.05em}
+input[type=range]{width:100%;accent-color:var(--sage);height:28px}
+.ci{text-align:center}
+.ci .pet{width:120px;height:120px;margin:0 auto 4px}
+.ci h2{font-size:20px;line-height:1.3;margin:0 6px 16px}
+.ci p{line-height:1.45;font-size:15px}
+.pct{font-size:42px;font-weight:800;color:var(--sage-d)}
+.step{display:flex;gap:10px;align-items:center;padding:7px 0}
+.step .check{width:22px;height:22px;border-radius:7px}
+.step span{flex:1;font-size:15px}
+.step.on span{text-decoration:line-through;color:var(--soft)}
+.x{color:#c9b9a3;font-size:20px;padding:0 4px}
+.set-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);gap:10px}
+.set-row:last-child{border-bottom:0}
+.set-row select,.set-row input[type=time]{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:7px 10px;font-size:15px}
+.tip{background:var(--card);border-radius:18px;padding:12px 14px;font-size:14px;line-height:1.45;margin-top:10px}
+.tip b{color:var(--sage-d)}
+
+/* toast + hearts */
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translate(-50%,-140%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:99px;font-weight:700;font-size:14.5px;z-index:40;transition:transform .35s cubic-bezier(.2,.9,.3,1.2);max-width:90vw;text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.heart{position:fixed;z-index:39;pointer-events:none;font-size:22px;animation:float 1.4s ease-out forwards}
+@keyframes float{0%{opacity:0;transform:translate(0,0) scale(.5)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-160px) scale(1.2) rotate(var(--r))}}
+</style>
+</head>
+<body>
+<div class="sky"></div>
+<div id="app"><div id="view"></div></div>
+<button class="fab hidden" id="fab" data-act="addTask" aria-label="Add task">+</button>
+<nav class="tabbar">
+  <button class="tab" data-act="tab" data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7v8.5a1.5 1.5 0 0 1-1.5 1.5h-4v-6h-6v6H5a1.5 1.5 0 0 1-1.5-1.5z"/></svg>Today</button>
+  <button class="tab" data-act="tab" data-tab="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="m8 12 3 3 5-6"/></svg>Tasks</button>
+  <button class="tab" data-act="tab" data-tab="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="4"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button>
+  <button class="tab" data-act="tab" data-tab="buddy"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6.5" cy="9.5" r="2.2"/><circle cx="12" cy="6.5" r="2.2"/><circle cx="17.5" cy="9.5" r="2.2"/><path d="M12 11.5c-3.3 0-5.5 3.4-5.5 5.6 0 2 2.2 2.7 5.5 2.7s5.5-.7 5.5-2.7c0-2.2-2.2-5.6-5.5-5.6z"/></svg>Buddy</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ state ============ */
+const KEY = 'littlesteps.v1';
+const $ = s => document.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4);
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a = 0, b = 100) => Math.max(a, Math.min(b, v));
+
+const defaults = () => ({
+  v: 1, onboarded: false, name: '', coins: 15, xp: 0, totalDone: 0,
+  lists: ['School', 'Health', 'Personal', 'Home'],
+  tasks: [], events: [], focus: null, lastNudge: 0,
+  streak: { count: 0, day: '' },
+  pet: { name: 'Mochi', color: '#8fd3a6', top: 'sprout', eyes: 'dot', acc: 'none', pattern: 'none', cheeks: true, happy: 75, full: 70, energy: 85, last: Date.now() },
+  settings: { nudge: 45, quietStart: 22, quietEnd: 8, checkins: ['10:00', '14:00', '19:00'] }
+});
+function load() {
+  try {
+    const r = JSON.parse(localStorage.getItem(KEY));
+    if (r && r.v) { const d = defaults(); return Object.assign(d, r, { pet: Object.assign(d.pet, r.pet), settings: Object.assign(d.settings, r.settings) }); }
+  } catch (e) {}
+  return defaults();
+}
+let S = load();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+let tab = 'today', calMonth = new Date(), calSel = ymd(new Date()), listFilter = 'All', showDone = false, celebrateUntil = 0;
+
+/* ============ creature ============ */
+const COLORS = ['#8fd3a6', '#8cc8ec', '#f5a3b7', '#f6d27a', '#f6b48a', '#c4a8e8', '#f3eee8', '#8f8b99', '#ef7b73', '#9fd9d2'];
+const TOPS = { sprout: 'Sprout', bunny: 'Bunny ears', cat: 'Cat ears', bow: 'Bow', antenna: 'Antenna', flame: 'Flame', none: 'None' };
+const EYES = { dot: 'Dot', big: 'Sparkly', bean: 'Beans', sleepy: 'Chill' };
+const ACCS = { none: 'None', glasses: 'Glasses', crown: 'Crown', flower: 'Flower', star: 'Star clip' };
+const PATS = { none: 'Plain', belly: 'Belly', spots: 'Spots', stripes: 'Stripes' };
+
+function shade(hex, amt) {
+  const n = parseInt(hex.slice(1), 16), rgb = [n >> 16, (n >> 8) & 255, n & 255];
+  return '#' + rgb.map(x => Math.round(amt < 0 ? x * (1 + amt) : x + (255 - x) * amt)).map(v => clamp(v, 0, 255).toString(16).padStart(2, '0')).join('');
+}
+let gid = 0;
+function petSVG(p, m) {
+  const id = 'pg' + (gid++), c = p.color, d = shade(c, -.25), l = shade(c, .5), ink = '#3b2f2f', pinkIn = '#f7b8c4';
+  const back = {
+    bunny: `<ellipse cx="72" cy="50" rx="13" ry="34" fill="${c}" transform="rotate(-14 72 50)"/><ellipse cx="72" cy="54" rx="6" ry="23" fill="${pinkIn}" transform="rotate(-14 72 54)"/><ellipse cx="128" cy="50" rx="13" ry="34" fill="${c}" transform="rotate(14 128 50)"/><ellipse cx="128" cy="54" rx="6" ry="23" fill="${pinkIn}" transform="rotate(14 128 54)"/>`,
+    cat: `<path d="M50 96 L58 40 L96 66Z" fill="${c}" stroke="${c}" stroke-width="6" stroke-linejoin="round"/><path d="M60 82 L63 54 L84 69Z" fill="${pinkIn}"/><path d="M150 96 L142 40 L104 66Z" fill="${c}" stroke="${c}" stroke-width="6" stroke-linejoin="round"/><path d="M140 82 L137 54 L116 69Z" fill="${pinkIn}"/>`
+  }[p.top] || '';
+  const front = {
+    sprout: `<path d="M100 60 Q98 46 102 34" stroke="#5f9e58" stroke-width="4.5" fill="none" stroke-linecap="round"/><ellipse cx="89" cy="35" rx="12" ry="6.5" fill="#86c477" transform="rotate(-25 89 35)"/><ellipse cx="114" cy="31" rx="13" ry="7" fill="#9bd38a" transform="rotate(20 114 31)"/>`,
+    bow: `<path d="M130 64 L111 51 L113 77Z" fill="#f28da0"/><path d="M130 64 L149 51 L147 77Z" fill="#f28da0"/><circle cx="130" cy="64" r="6.5" fill="#e9758b"/>`,
+    antenna: `<path d="M100 60 Q95 42 104 28" stroke="${d}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="104" cy="25" r="8" fill="#f6d27a"/><circle cx="101" cy="22" r="2.5" fill="#fff" opacity=".8"/>`,
+    flame: `<path d="M100 62 C84 52 90 38 98 24 C100 36 116 40 110 58Z" fill="#f6a35b"/><path d="M101 60 C94 54 96 46 100 38 C102 46 108 48 105 58Z" fill="#fbd36b"/>`
+  }[p.top] || '';
+  const pat = {
+    belly: `<ellipse cx="100" cy="153" rx="46" ry="25" fill="${l}" opacity=".85"/>`,
+    spots: `<circle cx="142" cy="108" r="9" fill="${d}" opacity=".35"/><circle cx="155" cy="138" r="6" fill="${d}" opacity=".35"/><circle cx="52" cy="150" r="7" fill="${d}" opacity=".35"/><circle cx="64" cy="98" r="5" fill="${d}" opacity=".3"/>`,
+    stripes: `<path d="M86 62 Q90 72 85 82 M100 59 L100 79 M114 62 Q110 72 115 82" stroke="${d}" stroke-width="6" stroke-linecap="round" fill="none" opacity=".45"/>`
+  }[p.pattern] || '';
+  let eyes;
+  if (m === 'yay') eyes = `<path d="M67 125 Q78 108 89 125 M111 125 Q122 108 133 125" stroke="${ink}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  else if (m === 'sleepy' || p.eyes === 'sleepy') eyes = `<path d="M68 120 Q78 127 88 120 M112 120 Q122 127 132 120" stroke="${ink}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;
+  else {
+    const [rx, ry, sr] = { dot: [7.5, 9.5, 2.8], big: [10.5, 12.5, 3.8], bean: [5, 6.5, 2] }[p.eyes] || [7.5, 9.5, 2.8];
+    eyes = [78, 122].map(x => `<ellipse cx="${x}" cy="120" rx="${rx}" ry="${ry}" fill="${ink}"/><circle cx="${x + 2.5}" cy="${120 - ry / 2.4}" r="${sr}" fill="#fff"/>${p.eyes === 'big' ? `<circle cx="${x - 3}" cy="${124}" r="1.7" fill="#fff"/>` : ''}`).join('');
+  }
+  const brows = m === 'sad' ? `<path d="M64 104 L86 98 M136 104 L114 98" stroke="${d}" stroke-width="3.5" stroke-linecap="round"/>` : '';
+  const mouth = {
+    yay: `<path d="M86 136 Q100 156 114 136 Q100 142 86 136Z" fill="#7a3d3d"/><path d="M93 143 Q100 150 107 143 Q100 146 93 143Z" fill="#f08b97"/>`,
+    joy: `<path d="M88 137 Q100 151 112 137 Q100 142 88 137Z" fill="#7a3d3d"/>`,
+    ok: `<path d="M92 138 Q100 145 108 138" stroke="${ink}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+    sad: `<path d="M91 146 Q100 137 109 146" stroke="${ink}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+    sleepy: `<ellipse cx="100" cy="141" rx="4" ry="5" fill="#7a3d3d"/>`
+  }[m] || '';
+  const cheeks = p.cheeks ? `<ellipse cx="58" cy="139" rx="12" ry="6.5" fill="#f48f9f" opacity=".45"/><ellipse cx="142" cy="139" rx="12" ry="6.5" fill="#f48f9f" opacity=".45"/>` : '';
+  const acc = {
+    glasses: `<g fill="none" stroke="#4b4038" stroke-width="3.2"><circle cx="78" cy="120" r="16"/><circle cx="122" cy="120" r="16"/><path d="M94 118 Q100 113 106 118"/></g>`,
+    crown: `<path d="M78 66 L82 42 L93 57 L100 38 L107 57 L118 42 L122 66Z" fill="#f6d27a" stroke="#e0b24e" stroke-width="2.5" stroke-linejoin="round"/>`,
+    flower: `<g transform="translate(142 78)">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="0" cy="-9" rx="6" ry="9" fill="#fff" transform="rotate(${a})"/>`).join('')}<circle r="6" fill="#f6d27a"/></g>`,
+    star: `<path transform="translate(58 82) scale(.9)" d="M0 -14 L4 -4 L14 -4 L6 3 L9 13 L0 7 L-9 13 L-6 3 L-14 -4 L-4 -4Z" fill="#f6d27a" stroke="#e0b24e" stroke-width="2" stroke-linejoin="round"/>`
+  }[p.acc] || '';
+  const zz = m === 'sleepy' ? `<text x="150" y="60" font-size="22" font-weight="800" fill="${d}" opacity=".7">z</text><text x="166" y="42" font-size="16" font-weight="800" fill="${d}" opacity=".5">z</text>` : '';
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="${esc(p.name)}">
+  <defs><radialGradient id="${id}" cx=".38" cy=".3" r=".85"><stop offset="0" stop-color="${l}"/><stop offset=".45" stop-color="${c}"/><stop offset="1" stop-color="${d}"/></radialGradient></defs>
+  <ellipse cx="100" cy="187" rx="62" ry="8" fill="#5a4030" opacity=".13"/>
+  <g class="body">${back}
+  <path d="M100 58 C148 58 176 100 178 140 C180 172 150 182 100 182 C50 182 20 172 22 140 C24 100 52 58 100 58Z" fill="url(#${id})"/>
+  ${pat}<ellipse cx="70" cy="88" rx="16" ry="9" fill="#fff" opacity=".5" transform="rotate(-32 70 88)"/>
+  ${front}${cheeks}${brows}${eyes}${mouth}${acc}${zz}</g></svg>`;
+}
+
+function tickPet() {
+  const p = S.pet, h = (Date.now() - (p.last || Date.now())) / 3.6e6;
+  if (h > 0.01) {
+    p.happy = clamp(p.happy - 1.5 * h, 8); p.full = clamp(p.full - 2.5 * h, 5); p.energy = clamp(p.energy + 5 * h);
+    p.last = Date.now(); save();
+  }
+}
+function mood() {
+  if (Date.now() < celebrateUntil) return 'yay';
+  const p = S.pet;
+  if (p.energy < 15) return 'sleepy';
+  const s = (p.happy * 2 + p.full) / 3;
+  return s > 62 ? 'joy' : s > 35 ? 'ok' : 'sad';
+}
+function speech() {
+  const m = mood(), p = S.pet, n = esc(S.name || 'friend');
+  if (m === 'yay') return pick(['YAY!! You did it!! 💚', 'I\'m SO proud of you!! ✨', 'That was amazing!! 🎉']);
+  if (S.focus) return pick(['I\'m cheering for you! 📣', 'Shhh… we\'re focusing 🌱', 'You\'ve got this, ' + n + '!']);
+  if (p.full < 25) return 'My tummy is rumbling… finish a task so we can get a snack? 🍓';
+  if (m === 'sleepy') return '*yawn*… just resting my eyes… zzz';
+  const t = nextTask();
+  if (m === 'sad') return pick(['I miss doing tasks together… 🥺', t ? `Just one tiny step on “${esc(t.title)}”? For me? 🥺` : 'Wanna add something small we can do?', 'Rest is okay too. But maybe one little step?']);
+  if (m === 'ok') return pick([t ? `What's one tiny piece of “${esc(t.title)}”?` : 'What\'s one tiny thing we can do?', '2 minutes. That\'s all. Promise. 🌱', 'Hi ' + n + '! I\'m happy you\'re here!']);
+  return pick(['You\'re doing great! 💚', 'I love watching you work!', 'Tiny steps count!', 'Hi ' + n + '!! 🌸']);
+}
+
+/* ============ tasks logic ============ */
+const PRI = { low: 1, med: 2, high: 3 };
+function urgency(t) {
+  let u = PRI[t.priority] * 10;
+  if (t.due) { const hrs = (new Date(t.due) - Date.now()) / 3.6e6; u += hrs < 0 ? 60 : hrs < 24 ? 40 : hrs < 72 ? 20 : 5; }
+  return u;
+}
+function nextTask() { return S.tasks.filter(t => !t.done).sort((a, b) => urgency(b) - urgency(a))[0]; }
+function endOfToday() { const d = new Date(); d.setHours(23, 59, 59, 999); return d.getTime(); }
+function fmtDue(iso) {
+  if (!iso) return '';
+  const d = new Date(iso); if (isNaN(d)) return '';
+  const t = ymd(new Date()), tm = ymd(new Date(Date.now() + 864e5));
+  const day = ymd(d) === t ? 'Today' : ymd(d) === tm ? 'Tomorrow' : d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+  return day + ' · ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+const isLate = t => t.due && !t.done && new Date(t.due) < new Date();
+
+function completeTask(t) {
+  if (t.done) { t.done = false; t.doneAt = null; save(); render(); return; }
+  t.done = true; t.progress = 100; t.doneAt = Date.now();
+  const r = { low: 5, med: 10, high: 15 }[t.priority] || 10, p = S.pet;
+  S.coins += r; S.xp += r; S.totalDone = (S.totalDone || 0) + 1;
+  p.happy = clamp(p.happy + 15); p.full = clamp(p.full + 3);
+  const today = ymd(new Date()), yest = ymd(new Date(Date.now() - 864e5));
+  if (S.streak.day !== today) { S.streak.count = S.streak.day === yest ? S.streak.count + 1 : 1; S.streak.day = today; }
+  if (S.focus && S.focus.id === t.id) S.focus = null;
+  celebrateUntil = Date.now() + 4500;
+  save(); render(); hearts(14); hop();
+  toast(`+${r} 🪙  ${S.pet.name} is SO happy!`);
+  setTimeout(() => { if (tab === 'today' || tab === 'buddy') render(); }, 4600);
+}
+function addTask(o) {
+  const t = Object.assign({ id: uid(), title: '', priority: 'med', list: '', due: '', notes: '', progress: 0, steps: [], done: false, created: Date.now(), snooze: 0 }, o);
+  S.tasks.push(t); save(); return t;
+}
+
+/* ============ views ============ */
+const I = {
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg>',
+  tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>'
+};
+function greeting() { const h = new Date().getHours(); return h < 5 ? 'Up late' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
+function bar(v, col) { return `<div class="bar"><i style="width:${Math.round(v)}%;background:${col}"></i></div>`; }
+function statsHTML() {
+  const p = S.pet;
+  return `<div class="stats"><div class="stat">💗 Happy${bar(p.happy, 'var(--pink)')}</div><div class="stat">🍓 Full${bar(p.full, 'var(--peach)')}</div><div class="stat">⚡ Energy${bar(p.energy, 'var(--butter)')}</div></div>`;
+}
+function taskRow(t) {
+  const meta = [];
+  if (t.due) meta.push(`<span class="${isLate(t) ? 'late' : ''}">${isLate(t) ? 'Late · ' : ''}${fmtDue(t.due)}</span>`);
+  if (t.list) meta.push(`<span>${esc(t.list)}</span>`);
+  if (!t.done && t.progress > 0) meta.push(`<span class="mini"><i style="width:${t.progress}%"></i></span><span>${t.progress}%</span>`);
+  if (t.steps && t.steps.length) meta.push(`<span>${t.steps.filter(s => s.done).length}/${t.steps.length} steps</span>`);
+  return `<div class="task ${t.done ? 'done' : ''}">
+    <button class="check ${t.done ? 'on' : ''}" data-act="toggle" data-id="${t.id}" aria-label="Complete">${t.done ? I.tick : ''}</button>
+    <div class="tbody" data-act="openTask" data-id="${t.id}"><div class="ttitle">${esc(t.title)}</div>${meta.length ? `<div class="tmeta">${meta.join('')}</div>` : ''}</div>
+    <span class="pdot p-${t.priority}"></span></div>`;
+}
+function focusHTML() {
+  if (!S.focus) return '';
+  const t = S.tasks.find(x => x.id === S.focus.id); if (!t) { S.focus = null; return ''; }
+  return `<div class="focus"><div class="row between"><div><div class="t">🌱 Focus time with ${esc(S.pet.name)}</div><div class="n">${esc(t.title)}</div></div><div class="clock" id="clock">--:--</div></div>
+   <div class="row"><button data-act="focusDone">I finished! ✅</button><button data-act="focusStop">Stop</button></div></div>`;
+}
+function viewToday() {
+  const p = S.pet, eot = endOfToday(), todayStr = ymd(new Date());
+  let list = S.tasks.filter(t => !t.done && ((t.due && new Date(t.due) <= eot) || (!t.due && t.priority === 'high')));
+  if (!list.length) list = S.tasks.filter(t => !t.done).sort((a, b) => urgency(b) - urgency(a)).slice(0, 5);
+  else list.sort((a, b) => urgency(b) - urgency(a));
+  const doneToday = S.tasks.filter(t => t.done && t.doneAt && ymd(new Date(t.doneAt)) === todayStr);
+  const upcoming = S.events.filter(e => e.date >= todayStr).sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || ''))).slice(0, 3);
+  const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  return `
+  <div class="hdr"><div><h1>${greeting()}, ${esc(S.name || 'friend')}.</h1><p>Small steps make big progress. ${S.streak.count > 1 && S.streak.day >= ymd(new Date(Date.now() - 864e5)) ? '🔥 ' + S.streak.count + '-day streak' : ''}</p></div>
+  <button class="iconbtn" data-act="settings" aria-label="Settings">${I.gear}</button></div>
+  ${!standalone && /iP(hone|ad|od)/.test(navigator.userAgent) ? `<div class="hint">📲 <b>Install me!</b> Tap the <b>Share</b> button in Safari, then <b>“Add to Home Screen”</b>. I'll live on your iPhone like a real app.</div>` : ''}
+  <div class="scene"><div class="sun"></div>
+    <svg class="hills" viewBox="0 0 400 120" preserveAspectRatio="none"><path d="M0 60 Q80 20 170 55 T400 40 V120 H0Z" fill="#b9d6a6"/><path d="M0 85 Q120 55 230 80 T400 75 V120 H0Z" fill="#a3c98f"/><circle cx="60" cy="96" r="4" fill="#f5a3b7"/><circle cx="330" cy="92" r="4" fill="#fff"/><circle cx="300" cy="104" r="3.5" fill="#f6d27a"/><circle cx="90" cy="108" r="3" fill="#fff"/></svg>
+    <div class="bubble">${speech()}</div>
+    <div class="pet" id="mainPet" data-act="pet">${petSVG(p, mood())}</div>
+    <div class="lvl">Lv ${Math.floor(S.xp / 50) + 1}</div><div class="coins">🪙 ${S.coins}</div>
+  </div>
+  ${focusHTML()}
+  <div class="card">${statsHTML()}</div>
+  <div class="card">
+    <div class="card-h"><h3>Today's steps</h3><span class="pill">${doneToday.length}/${doneToday.length + list.length}</span></div>
+    <form class="quick" data-form="quick"><input class="input" name="q" placeholder="Add a quick task…" autocomplete="off" enterkeyhint="done"></form>
+    ${list.length || doneToday.length ? list.map(taskRow).join('') + doneToday.map(taskRow).join('') : `<div class="empty">Nothing here yet! Add one tiny thing 🌱</div>`}
+  </div>
+  ${upcoming.length ? `<div class="card"><div class="card-h"><h3>Coming up</h3><button class="link" data-act="tab" data-tab="cal">Calendar</button></div>${upcoming.map(evRow).join('')}</div>` : ''}`;
+}
+function viewTasks() {
+  const lists = ['All', ...S.lists];
+  let ts = S.tasks.filter(t => listFilter === 'All' || t.list === listFilter);
+  const open = ts.filter(t => !t.done).sort((a, b) => urgency(b) - urgency(a));
+  const eot = endOfToday(), now = Date.now();
+  const g = { 'Running late': [], 'Today': [], 'Coming up': [], 'Someday': [] };
+  open.forEach(t => {
+    if (!t.due) g['Someday'].push(t);
+    else { const d = new Date(t.due).getTime(); (d < now ? g['Running late'] : d <= eot ? g['Today'] : g['Coming up']).push(t); }
+  });
+  g['Coming up'].sort((a, b) => new Date(a.due) - new Date(b.due));
+  const done = ts.filter(t => t.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+  return `<div class="hdr"><div><h1>Tasks</h1><p>${open.length} to go · ${done.length} done</p></div><button class="iconbtn" data-act="settings">${I.gear}</button></div>
+  <div class="scroll-chips">${lists.map(l => `<button class="chip ${l === listFilter ? 'on' : ''}" data-act="filter" data-l="${esc(l)}">${esc(l)}</button>`).join('')}<button class="chip" data-act="newList">+ List</button></div>
+  ${open.length ? Object.entries(g).filter(([, a]) => a.length).map(([k, a]) => `<div class="group-t">${k}</div><div class="card" style="padding:4px 14px">${a.map(taskRow).join('')}</div>`).join('') : `<div class="card empty">All clear! ${esc(S.pet.name)} is proud 💚<br>Tap <b>+</b> to add something.</div>`}
+  ${done.length ? `<button class="link" data-act="showDone">${showDone ? 'Hide' : 'Show'} finished (${done.length})</button>${showDone ? `<div class="card" style="padding:4px 14px">${done.map(taskRow).join('')}</div>` : ''}` : ''}`;
+}
+function evRow(e) {
+  const d = new Date(e.date + 'T' + (e.time || '12:00'));
+  return `<div class="ev" data-act="openEvent" data-id="${e.id}"><div class="ic" style="background:${e.important ? '#fde0e3' : '#e3effa'}">${e.important ? '⭐' : '📅'}</div>
+   <div class="tbody"><div class="ttitle">${esc(e.title)}</div><div class="tmeta">${d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}${e.time ? ' · ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : ''}</div></div></div>`;
+}
+function viewCal() {
+  const y = calMonth.getFullYear(), m = calMonth.getMonth(), first = new Date(y, m, 1), start = new Date(y, m, 1 - first.getDay()), today = ymd(new Date());
+  let cells = '';
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = ymd(d);
+    if (i >= 35 && d.getMonth() !== m) break;
+    const evs = S.events.filter(e => e.date === k), tks = S.tasks.filter(t => t.due && t.due.slice(0, 10) === k && !t.done);
+    const dots = (evs.some(e => e.important) ? '<i style="background:var(--pink)"></i>' : '') + (evs.some(e => !e.important) ? '<i style="background:var(--sky)"></i>' : '') + (tks.length ? '<i style="background:var(--butter)"></i>' : '');
+    cells += `<button class="day ${d.getMonth() !== m ? 'out' : ''} ${k === today ? 'today' : ''} ${k === calSel ? 'sel' : ''}" data-act="calDay" data-d="${k}">${d.getDate()}<span class="dots">${dots}</span></button>`;
+  }
+  const evs = S.events.filter(e => e.date === calSel).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  const tks = S.tasks.filter(t => t.due && t.due.slice(0, 10) === calSel);
+  const selD = new Date(calSel + 'T12:00');
+  const important = S.events.filter(e => e.important && e.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5);
+  return `<div class="hdr"><div><h1>Calendar</h1><p>Important dates & deadlines</p></div><button class="iconbtn" data-act="settings">${I.gear}</button></div>
+  <div class="card"><div class="cal-h"><button class="iconbtn" data-act="calPrev">‹</button><h3>${first.toLocaleDateString([], { month: 'long', year: 'numeric' })}</h3><button class="iconbtn" data-act="calNext">›</button></div>
+   <div class="grid7">${'SMTWTFS'.split('').map(c => `<div class="wd">${c}</div>`).join('')}${cells}</div>
+   <div class="row" style="gap:14px;margin-top:10px;font-size:12px;color:var(--soft);font-weight:600"><span><span class="pdot" style="display:inline-block;background:var(--pink)"></span> important</span><span><span class="pdot" style="display:inline-block;background:var(--sky)"></span> event</span><span><span class="pdot" style="display:inline-block;background:var(--butter)"></span> task due</span></div></div>
+  <div class="card"><div class="card-h"><h3>${selD.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })}</h3><button class="btn sm" data-act="addEvent">+ Date</button></div>
+   ${evs.length || tks.length ? evs.map(evRow).join('') + tks.map(taskRow).join('') : `<div class="empty">Nothing planned. A free day! ☁️</div>`}</div>
+  ${important.length ? `<div class="card"><div class="card-h"><h3>⭐ Don't forget</h3></div>${important.map(evRow).join('')}</div>` : ''}`;
+}
+function opt(obj, key) { return Object.entries(obj).map(([k, v]) => `<button class="chip ${S.pet[key] === k ? 'on' : ''}" data-act="custom" data-k="${key}" data-v="${k}">${v}</button>`).join(''); }
+function viewBuddy() {
+  const p = S.pet;
+  return `<div class="hdr"><div><h1>${esc(p.name)}</h1><p>Level ${Math.floor(S.xp / 50) + 1} · ${S.totalDone || 0} tasks done together</p></div><div class="coins" style="position:static;box-shadow:var(--shadow)">🪙 ${S.coins}</div></div>
+  <div class="buddy-stage"><div class="bubble">${Date.now() < celebrateUntil ? speech() : pick(['Pet me! 🥰', speech(), speech()])}</div><div class="pet" id="mainPet" data-act="pet">${petSVG(p, mood())}</div></div>
+  <div class="card">${statsHTML()}</div>
+  <div class="actions" style="margin-bottom:14px">
+    <button class="act" data-act="feed"><span class="e">🍓</span>Feed</button>
+    <button class="act" data-act="play"><span class="e">🎾</span>Play</button>
+    <button class="act" data-act="pet"><span class="e">🫶</span>Pet</button>
+  </div>
+  <div class="card"><h3>Make them yours ✨</h3>
+    <div class="lbl">Name</div><input class="input" id="petName" value="${esc(p.name)}" maxlength="16">
+    <div class="lbl">Color</div><div class="swatches">${COLORS.map(c => `<button class="sw ${p.color === c ? 'on' : ''}" style="background:${c}" data-act="custom" data-k="color" data-v="${c}"></button>`).join('')}</div>
+    <div class="lbl">On top</div><div class="chips">${opt(TOPS, 'top')}</div>
+    <div class="lbl">Eyes</div><div class="chips">${opt(EYES, 'eyes')}</div>
+    <div class="lbl">Accessory</div><div class="chips">${opt(ACCS, 'acc')}</div>
+    <div class="lbl">Pattern</div><div class="chips">${opt(PATS, 'pattern')}</div>
+    <div class="lbl">Blush</div><div class="chips"><button class="chip ${p.cheeks ? 'on' : ''}" data-act="custom" data-k="cheeks" data-v="1">Rosy cheeks</button><button class="chip ${!p.cheeks ? 'on' : ''}" data-act="custom" data-k="cheeks" data-v="">No blush</button></div>
+  </div>
+  <p class="muted" style="text-align:center;font-size:13.5px">${esc(p.name)} gets happier every time you finish a task 💚<br>Coins come from tasks — spend them on snacks!</p>`;
+}
+
+function render() {
+  tickPet();
+  $('#view').innerHTML = { today: viewToday, tasks: viewTasks, cal: viewCal, buddy: viewBuddy }[tab]();
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $('#fab').classList.toggle('hidden', !(tab === 'tasks' || tab === 'today'));
+  updateClock();
+}
+
+/* ============ sheets ============ */
+let sheetClose = null;
+function openSheet(html, mount, onClose) {
+  closeSheet(true);
+  const bd = document.createElement('div'); bd.className = 'backdrop';
+  const sh = document.createElement('div'); sh.className = 'sheet'; sh.innerHTML = '<div class="grab"></div>' + html;
+  document.body.append(bd, sh);
+  requestAnimationFrame(() => { bd.classList.add('show'); sh.classList.add('show'); });
+  bd.onclick = () => closeSheet();
+  sheetClose = () => { bd.classList.remove('show'); sh.classList.remove('show'); setTimeout(() => { bd.remove(); sh.remove(); }, 300); onClose && onClose(); };
+  mount && mount(sh);
+  return sh;
+}
+function closeSheet(silent) { if (sheetClose) { const f = sheetClose; sheetClose = null; f(); if (!silent) render(); } }
+const sheetOpen = () => !!sheetClose;
+
+function chipGroup(name, opts, val, extra = '') { return `<div class="chips" data-group="${name}">${opts.map(([v, l]) => `<button type="button" class="chip ${extra ? v : ''} ${v === val ? 'on' : ''}" data-v="${esc(v)}">${l}</button>`).join('')}</div>`; }
+function wireChips(root, cb) {
+  root.querySelectorAll('[data-group]').forEach(g => g.addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b || b.dataset.v === '__new') return;
+    g.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); cb(g.dataset.group, b.dataset.v);
+  }));
+}
+
+function openAddTask(pre = {}) {
+  const st = { title: '', priority: 'med', list: listFilter !== 'All' ? listFilter : '', due: pre.due || '' };
+  openSheet(`<h2>New task 🌱</h2>
+   <input class="input" id="tTitle" placeholder="What do you need to do?" autocomplete="off">
+   <label class="f">Priority</label>${chipGroup('priority', [['low', 'Low'], ['med', 'Medium'], ['high', 'High']], st.priority, 1)}
+   <label class="f">Due (optional)</label><input class="input" type="datetime-local" id="tDue" value="${st.due}">
+   <div class="chips" style="margin-top:8px">${[['Today 5pm', 0, 17], ['Tonight', 0, 21], ['Tomorrow 9am', 1, 9]].map(([l, dd, hh]) => `<button type="button" class="chip" data-quick="${dd},${hh}">${l}</button>`).join('')}</div>
+   <label class="f">List</label>${chipGroup('list', [['', 'None'], ...S.lists.map(l => [l, l])], st.list)}
+   <div style="margin-top:20px"><button class="btn" id="tSave">Save</button></div>`, sh => {
+    const ti = sh.querySelector('#tTitle'); setTimeout(() => ti.focus(), 320);
+    wireChips(sh, (k, v) => st[k] = v);
+    sh.querySelectorAll('[data-quick]').forEach(b => b.onclick = () => { const [dd, hh] = b.dataset.quick.split(',').map(Number); const d = new Date(); d.setDate(d.getDate() + dd); d.setHours(hh, 0, 0, 0); sh.querySelector('#tDue').value = ymd(d) + 'T' + pad(hh) + ':00'; });
+    const go = () => { const title = ti.value.trim(); if (!title) { ti.focus(); return; } addTask({ title, priority: st.priority, list: st.list, due: sh.querySelector('#tDue').value }); closeSheet(); toast(`Added! ${S.pet.name} believes in you 💚`); };
+    sh.querySelector('#tSave').onclick = go; ti.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  });
+}
+
+function openTask(id) {
+  const t = S.tasks.find(x => x.id === id); if (!t) return;
+  const stepsHTML = () => (t.steps || []).map(s => `<div class="step ${s.done ? 'on' : ''}"><button class="check ${s.done ? 'on' : ''}" data-step="${s.id}">${s.done ? I.tick : ''}</button><span>${esc(s.text)}</span><button class="x" data-del="${s.id}">×</button></div>`).join('');
+  openSheet(`<input class="input" id="eTitle" value="${esc(t.title)}" style="font-size:19px;font-weight:700">
+   <label class="f">How far along? <span id="ePctL" style="color:var(--sage-d)">${t.progress}%</span></label>
+   <input type="range" min="0" max="100" step="5" value="${t.progress}" id="ePct">
+   <label class="f">Baby steps</label><div id="steps">${stepsHTML()}</div>
+   <form id="stepForm" class="quick" style="margin-top:6px"><input class="input" id="stepIn" placeholder="Add a tiny step… (e.g. open the doc)" autocomplete="off"></form>
+   <label class="f">Focus with ${esc(S.pet.name)}</label>
+   <div class="chips">${[10, 15, 25, 45].map(m => `<button class="chip" data-focus="${m}">${m} min</button>`).join('')}</div>
+   <label class="f">Priority</label>${chipGroup('priority', [['low', 'Low'], ['med', 'Medium'], ['high', 'High']], t.priority, 1)}
+   <label class="f">Due</label><input class="input" type="datetime-local" id="eDue" value="${t.due || ''}">
+   <label class="f">List</label>${chipGroup('list', [['', 'None'], ...S.lists.map(l => [l, l])], t.list || '')}
+   <label class="f">Notes</label><textarea class="input" id="eNotes" placeholder="Anything to remember…">${esc(t.notes)}</textarea>
+   <div class="stack" style="margin-top:18px"><button class="btn" id="eDone">${t.done ? 'Mark not done' : 'Done!! ✅'}</button>
+   <button class="link" id="eDel" style="display:block;margin:0 auto">Delete task</button></div>`, sh => {
+    wireChips(sh, (k, v) => { t[k] = v; save(); });
+    sh.querySelector('#eTitle').oninput = e => { t.title = e.target.value; save(); };
+    sh.querySelector('#eDue').onchange = e => { t.due = e.target.value; save(); };
+    sh.querySelector('#eNotes').oninput = e => { t.notes = e.target.value; save(); };
+    const pr = sh.querySelector('#ePct');
+    pr.oninput = () => { sh.querySelector('#ePctL').textContent = pr.value + '%'; };
+    pr.onchange = () => { const old = t.progress; t.progress = +pr.value; if (t.progress > old) { S.pet.happy = clamp(S.pet.happy + 3); toast(`${t.progress}%! ${S.pet.name} does a little wiggle 💃`); } save(); };
+    const sync = () => { const s = t.steps; if (s.length) { t.progress = Math.round(s.filter(x => x.done).length / s.length * 100); pr.value = t.progress; sh.querySelector('#ePctL').textContent = t.progress + '%'; } sh.querySelector('#steps').innerHTML = stepsHTML(); save(); };
+    sh.querySelector('#stepForm').onsubmit = e => { e.preventDefault(); const v = sh.querySelector('#stepIn').value.trim(); if (!v) return; (t.steps = t.steps || []).push({ id: uid(), text: v, done: false }); sh.querySelector('#stepIn').value = ''; sync(); };
+    sh.querySelector('#steps').onclick = e => {
+      const s = e.target.closest('[data-step]'), d = e.target.closest('[data-del]');
+      if (s) { const st = t.steps.find(x => x.id === s.dataset.step); st.done = !st.done; if (st.done) { S.coins += 1; S.pet.happy = clamp(S.pet.happy + 2); hearts(4, s); } sync(); }
+      if (d) { t.steps = t.steps.filter(x => x.id !== d.dataset.del); sync(); }
+    };
+    sh.querySelectorAll('[data-focus]').forEach(b => b.onclick = () => startFocus(t, +b.dataset.focus));
+    sh.querySelector('#eDone').onclick = () => { closeSheet(true); completeTask(t); };
+    sh.querySelector('#eDel').onclick = () => { if (confirm('Delete this task?')) { S.tasks = S.tasks.filter(x => x.id !== t.id); if (S.focus && S.focus.id === t.id) S.focus = null; save(); closeSheet(); } };
+  });
+}
+
+function openEvent(id, date) {
+  const e = id ? S.events.find(x => x.id === id) : { title: '', date: date || calSel, time: '', important: true, note: '' };
+  if (!e) return;
+  openSheet(`<h2>${id ? 'Edit date' : 'Important date ⭐'}</h2>
+   <input class="input" id="vTitle" placeholder="e.g. Pharm exam, Mom's birthday" value="${esc(e.title)}">
+   <label class="f">Date</label><input class="input" type="date" id="vDate" value="${e.date}">
+   <label class="f">Time (optional)</label><input class="input" type="time" id="vTime" value="${e.time || ''}">
+   <label class="f">Type</label>${chipGroup('imp', [['1', '⭐ Important'], ['', '📅 Regular']], e.important ? '1' : '')}
+   <label class="f">Note</label><textarea class="input" id="vNote">${esc(e.note)}</textarea>
+   <div class="stack" style="margin-top:18px"><button class="btn" id="vSave">Save</button>${id ? '<button class="link" id="vDel" style="display:block;margin:0 auto">Delete</button>' : ''}</div>`, sh => {
+    let imp = e.important; wireChips(sh, (k, v) => imp = !!v);
+    sh.querySelector('#vSave').onclick = () => {
+      const title = sh.querySelector('#vTitle').value.trim(), d = sh.querySelector('#vDate').value; if (!title || !d) return toast('Add a name and date 🌱');
+      Object.assign(e, { title, date: d, time: sh.querySelector('#vTime').value, important: imp, note: sh.querySelector('#vNote').value });
+      if (!id) { e.id = uid(); S.events.push(e); }
+      calSel = d; save(); closeSheet();
+    };
+    if (id) sh.querySelector('#vDel').onclick = () => { if (confirm('Delete this date?')) { S.events = S.events.filter(x => x.id !== id); save(); closeSheet(); } };
+  });
+}
+
+/* ============ check-ins (the nudge engine) ============ */
+function inQuiet() { const h = new Date().getHours(), a = +S.settings.quietStart, b = +S.settings.quietEnd; return a === b ? false : a > b ? (h >= a || h < b) : (h >= a && h < b); }
+function checkNudge() {
+  if (!S.onboarded || sheetOpen() || document.hidden) return;
+  if (S.focus) { if (Date.now() >= S.focus.until) { const t = S.tasks.find(x => x.id === S.focus.id); S.focus = null; save(); render(); if (t && !t.done) openCheckin(t, 'focus'); } return; }
+  if (!S.settings.nudge || inQuiet()) return;
+  if (Date.now() - S.lastNudge < S.settings.nudge * 60000) return;
+  const now = Date.now(), t = S.tasks.filter(x => !x.done && !(x.snooze > now)).sort((a, b) => urgency(b) - urgency(a))[0];
+  if (!t) return;
+  S.lastNudge = now; save(); openCheckin(t);
+}
+function openCheckin(t, why) {
+  const p = S.pet, n = esc(S.name || 'friend'), tt = esc(t.title);
+  let pct = t.progress || 0, mins = pct >= 50 ? 60 : 30;
+  const title = why === 'focus' ? `Time's up! How far did you get on “${tt}”?` : pick([`Hey ${n}! How's “${tt}” going?`, `Just checking in — any progress on “${tt}”?`, `${esc(p.name)} wants to know: how's “${tt}”?`, `Psst… “${tt}” is waiting for us 👀`]);
+  const lbl = m => m < 60 ? m + ' min' : (m / 60) + ' hr';
+  openSheet(`<div class="ci"><div class="pet hop">${petSVG(p, mood() === 'yay' ? 'joy' : mood())}</div><h2>${title}</h2>
+    <div id="ciMain" class="stack">
+      <button class="btn" data-ci="working">I'm working on it! 💪</button>
+      <button class="btn ghost" data-ci="done">It's done!! ✅</button>
+      <button class="btn ghost" data-ci="notyet">Haven't started… 😅</button>
+      <button class="link" data-ci="later">Not right now</button>
+    </div>
+    <div id="ciWork" class="hidden"><div>I'm</div><div class="pct"><span id="ciPct">${pct}</span>% done</div>
+      <input type="range" min="0" max="100" step="5" value="${pct}" id="ciRange">
+      <p class="muted" style="margin:10px 0 8px">Check on me again in…</p>
+      <div class="chips" style="justify-content:center" id="ciMins">${[15, 30, 60, 120].map(m => `<button class="chip ${m === mins ? 'on' : ''}" data-m="${m}">${lbl(m)}</button>`).join('')}</div>
+      <div style="margin-top:18px"><button class="btn" data-ci="saveWork">Got it — leave me be 💚</button></div></div>
+    <div id="ciStart" class="hidden stack"><p>That's okay! Starting is the hardest part. Let's do the <b>tiniest</b> version — just <b>10 minutes</b>, and you're allowed to stop after. 🌱</p>
+      <button class="btn" data-ci="tiny">Start a 10-min tiny session</button>
+      <button class="btn ghost" data-ci="steps">Break it into baby steps</button>
+      <button class="link" data-ci="later">Still not now</button></div>
+  </div>`, sh => {
+    const r = sh.querySelector('#ciRange');
+    r.oninput = () => sh.querySelector('#ciPct').textContent = r.value;
+    sh.querySelector('#ciMins').onclick = e => { const b = e.target.closest('[data-m]'); if (!b) return; mins = +b.dataset.m; sh.querySelectorAll('#ciMins .chip').forEach(c => c.classList.toggle('on', c === b)); };
+    sh.addEventListener('click', e => {
+      const b = e.target.closest('[data-ci]'); if (!b) return;
+      const a = b.dataset.ci, now = Date.now();
+      if (a === 'working') { sh.querySelector('#ciMain').classList.add('hidden'); sh.querySelector('#ciWork').classList.remove('hidden'); }
+      if (a === 'notyet') { sh.querySelector('#ciMain').classList.add('hidden'); sh.querySelector('#ciStart').classList.remove('hidden'); }
+      if (a === 'done') { closeSheet(true); completeTask(t); }
+      if (a === 'saveWork') {
+        t.progress = +r.value; if (t.progress >= 100) { closeSheet(true); completeTask(t); return; }
+        t.snooze = now + mins * 60000; S.lastNudge = now; S.pet.happy = clamp(S.pet.happy + 4); save(); closeSheet();
+        toast(`${t.progress}%!! Okay, I'll check back in ${lbl(mins)} 🌱`); hearts(6);
+      }
+      if (a === 'later') { t.snooze = now + 30 * 60000; S.lastNudge = now; S.pet.happy = clamp(S.pet.happy - 3, 8); save(); closeSheet(); toast(`Okay… I'll ask again in a bit 🥺`); }
+      if (a === 'tiny') { closeSheet(true); startFocus(t, 10); }
+      if (a === 'steps') { closeSheet(true); openTask(t.id); }
+    });
+  });
+}
+function startFocus(t, m) {
+  S.focus = { id: t.id, until: Date.now() + m * 60000 }; S.lastNudge = Date.now(); save();
+  closeSheet(true); tab = 'today'; render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  toast(`${m} minutes. You + ${S.pet.name}. Go! 🚀`);
+}
+function updateClock() {
+  const el = $('#clock'); if (!el || !S.focus) return;
+  const s = Math.max(0, Math.round((S.focus.until - Date.now()) / 1000));
+  el.textContent = pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+}
+
+/* ============ buddy interactions ============ */
+let lastPet = 0;
+function hop(cls = 'hop') { const el = $('#mainPet'); if (!el) return; el.classList.remove('hop', 'wiggle'); void el.offsetWidth; el.classList.add(cls); setTimeout(() => el.classList.remove(cls), 1100); }
+function petPet(el) {
+  hop(); hearts(5, el);
+  if (Date.now() - lastPet > 4000) { S.pet.happy = clamp(S.pet.happy + 2); save(); lastPet = Date.now(); }
+  const b = document.querySelector('.bubble'); if (b) b.textContent = pick(['Hehe!! 🥰', 'That tickles!', 'I love you too!! 💚', '*happy wobble*', 'More pats please!']);
+}
+const TREATS = [['🍓', 'Berry', 5, { full: 15 }], ['🍪', 'Cookie', 10, { full: 30, happy: 5 }], ['🍵', 'Cozy tea', 8, { energy: 25 }], ['🍰', 'Fancy cake', 25, { full: 60, happy: 15 }]];
+function openFeed() {
+  openSheet(`<h2>Snack time! <span class="muted" style="font-size:16px">🪙 ${S.coins}</span></h2><div class="stack">${TREATS.map(([e, n, c, fx], i) => `<button class="treat" data-t="${i}" ${S.coins < c ? 'disabled' : ''}><span class="e">${e}</span><span><b>${n}</b><small>${Object.entries(fx).map(([k, v]) => `+${v} ${k}`).join(' · ')}</small></span><span class="cost">🪙 ${c}</span></button>`).join('')}</div>
+   <p class="muted" style="text-align:center;font-size:14px">Finish tasks to earn more coins 🌱</p>`, sh => {
+    sh.onclick = e => { const b = e.target.closest('[data-t]'); if (!b || b.disabled) return; const [em, n, c, fx] = TREATS[+b.dataset.t]; S.coins -= c; Object.entries(fx).forEach(([k, v]) => S.pet[k] = clamp(S.pet[k] + v)); save(); closeSheet(); setTimeout(() => { hop(); hearts(6); toast(`${em} Nom nom! ${S.pet.name} loved it!`); }, 320); };
+  });
+}
+function play() {
+  const p = S.pet;
+  if (p.energy < 15) return toast(`${p.name} is too sleepy to play… let them rest 💤`);
+  p.energy = clamp(p.energy - 10); p.happy = clamp(p.happy + 7); save(); render(); setTimeout(() => { hop(); hearts(6); }, 30);
+  toast(pick(['🎾 Boing! Boing!', '🎾 Catch!! Yay!', '🎾 Zoomies!!']));
+}
+
+/* ============ settings, onboarding ============ */
+function openSettings() {
+  const s = S.settings, hrs = Array.from({ length: 24 }, (_, i) => i);
+  const hsel = (id, v) => `<select id="${id}">${hrs.map(h => `<option value="${h}" ${h === +v ? 'selected' : ''}>${new Date(2000, 0, 1, h).toLocaleTimeString([], { hour: 'numeric' })}</option>`).join('')}</select>`;
+  openSheet(`<h2>Settings</h2>
+   <div class="card" style="padding:4px 16px">
+     <div class="set-row"><span>Your name</span><input class="input" id="sName" value="${esc(S.name)}" style="width:150px;padding:8px 12px"></div>
+     <div class="set-row"><span>In-app check-ins every</span><select id="sNudge">${[[0, 'Off'], [15, '15 min'], [30, '30 min'], [45, '45 min'], [60, '1 hour'], [90, '1.5 hours'], [120, '2 hours']].map(([v, l]) => `<option value="${v}" ${v === +s.nudge ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+     <div class="set-row"><span>Quiet from</span>${hsel('sQs', s.quietStart)}</div>
+     <div class="set-row"><span>Quiet until</span>${hsel('sQe', s.quietEnd)}</div>
+   </div>
+   <h3 style="margin:18px 4px 8px">📲 Reminders when the app is closed</h3>
+   <div class="card">
+     <p style="margin:0 0 10px;font-size:14.5px;line-height:1.45">iPhone only lets web apps buzz you when they're open, so we use your iPhone's <b>Calendar</b> alarms instead. This adds your due tasks, important dates and daily ${esc(S.pet.name)} check-ins to Calendar — with real alerts.</p>
+     <div class="lbl" style="margin-top:4px">Daily check-in times</div>
+     <div class="row">${s.checkins.map((c, i) => `<input type="time" class="input" data-ck="${i}" value="${c}" style="padding:8px">`).join('')}</div>
+     <div class="stack" style="margin-top:12px"><button class="btn" id="sCal">Add reminders to Calendar</button><button class="btn ghost" id="sCalShare">Share .ics file instead</button></div>
+     <p class="muted" style="font-size:13px;margin:10px 0 0">Re-add after adding new tasks. Tip: put them in a new calendar called “little steps” so it's easy to clear & re-import.</p>
+   </div>
+   <div class="tip"><b>Doom-scroll catcher 📵</b><br>Open the <b>Shortcuts</b> app → Automation → <b>+</b> → App → pick TikTok / Instagram → “Is Opened” → Run Immediately → add <b>Show Notification</b>: “${esc(S.pet.name)} misses you… still on TikTok? Your tasks are waiting 🥺”.</div>
+   <h3 style="margin:18px 4px 8px">💾 Backup</h3>
+   <div class="card stack"><button class="btn ghost" id="sExp">Save a backup file</button><button class="btn ghost" id="sImp">Restore from backup</button><input type="file" id="sFile" accept=".json,application/json" class="hidden">
+   <button class="link" id="sReset" style="display:block;margin:0 auto">Start over (erase everything)</button></div>`, sh => {
+    sh.querySelector('#sName').oninput = e => { S.name = e.target.value.trim(); save(); };
+    sh.querySelector('#sNudge').onchange = e => { s.nudge = +e.target.value; save(); };
+    sh.querySelector('#sQs').onchange = e => { s.quietStart = +e.target.value; save(); };
+    sh.querySelector('#sQe').onchange = e => { s.quietEnd = +e.target.value; save(); };
+    sh.querySelectorAll('[data-ck]').forEach(i => i.onchange = () => { s.checkins[+i.dataset.ck] = i.value; save(); });
+    sh.querySelector('#sCal').onclick = () => { location.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(buildICS()); };
+    sh.querySelector('#sCalShare').onclick = () => shareFile(buildICS(), 'little-steps.ics', 'text/calendar');
+    sh.querySelector('#sExp').onclick = () => shareFile(JSON.stringify(S), `little-steps-backup-${ymd(new Date())}.json`, 'application/json');
+    const f = sh.querySelector('#sFile');
+    sh.querySelector('#sImp').onclick = () => f.click();
+    f.onchange = async () => { try { const d = JSON.parse(await f.files[0].text()); if (!d.v) throw 0; localStorage.setItem(KEY, JSON.stringify(d)); S = load(); closeSheet(); toast('Restored! Welcome back 💚'); } catch (e) { toast('Hmm, that file didn\'t work 😕'); } };
+    sh.querySelector('#sReset').onclick = () => { if (confirm('Erase all tasks, dates and your buddy? This cannot be undone.')) { localStorage.removeItem(KEY); S = load(); closeSheet(true); tab = 'today'; render(); onboard(); } };
+  });
+}
+async function shareFile(text, name, type) {
+  const file = new File([text], name, { type });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.append(a); a.click(); a.remove();
+}
+function icsDate(d) { return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + 'T' + pad(d.getHours()) + pad(d.getMinutes()) + '00'; }
+function icsEsc(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1'); }
+function buildICS() {
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//little steps//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:little steps'];
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z', pn = S.pet.name;
+  const add = o => {
+    L.push('BEGIN:VEVENT', 'UID:' + o.uid + '@littlesteps', 'DTSTAMP:' + stamp, ...o.time, 'SUMMARY:' + icsEsc(o.sum));
+    if (o.desc) L.push('DESCRIPTION:' + icsEsc(o.desc));
+    if (o.rrule) L.push('RRULE:' + o.rrule);
+    o.alarms.forEach(a => L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(o.sum), 'TRIGGER:' + a, 'END:VALARM'));
+    L.push('END:VEVENT');
+  };
+  S.tasks.filter(t => !t.done && t.due).forEach(t => {
+    const d = new Date(t.due); if (isNaN(d)) return;
+    add({ uid: 't' + t.id, time: ['DTSTART:' + icsDate(d), 'DTEND:' + icsDate(new Date(d.getTime() + 15 * 60000))], sum: '🌱 ' + t.title, desc: `${pn} believes in you! Open little steps and check in.`, alarms: t.priority === 'high' ? ['-P1D', '-PT3H', '-PT1H', '-PT15M'] : ['-PT3H', '-PT1H', '-PT15M'] });
+  });
+  S.events.forEach(e => {
+    const sum = (e.important ? '⭐ ' : '') + e.title;
+    if (e.time) { const d = new Date(e.date + 'T' + e.time); add({ uid: 'e' + e.id, time: ['DTSTART:' + icsDate(d), 'DTEND:' + icsDate(new Date(d.getTime() + 3.6e6))], sum, desc: e.note, alarms: e.important ? ['-P3D', '-P1D', '-PT1H'] : ['-PT1H'] }); }
+    else { const s = new Date(e.date + 'T00:00'), n = new Date(s); n.setDate(n.getDate() + 1); add({ uid: 'e' + e.id, time: ['DTSTART;VALUE=DATE:' + ymd(s).replace(/-/g, ''), 'DTEND;VALUE=DATE:' + ymd(n).replace(/-/g, '')], sum, desc: e.note, alarms: e.important ? ['-P2DT15H', '-PT15H', 'PT9H'] : ['PT9H'] }); }
+  });
+  S.settings.checkins.filter(Boolean).forEach((tm, i) => {
+    const d = new Date(ymd(new Date()) + 'T' + tm);
+    add({ uid: 'checkin' + i, time: ['DTSTART:' + icsDate(d), 'DTEND:' + icsDate(new Date(d.getTime() + 5 * 60000))], sum: `💚 ${pn} check-in: how are your tasks going?`, desc: 'Open little steps and tell me how far you got!', rrule: 'FREQ=DAILY', alarms: ['PT0M'] });
+  });
+  L.push('END:VCALENDAR'); return L.join('\r\n');
+}
+
+function onboard() {
+  let color = S.pet.color;
+  openSheet(`<div class="ci"><div class="pet" id="obPet">${petSVG(S.pet, 'joy')}</div><h2>Hi! I'm your new little buddy 💚</h2>
+   <p class="muted" style="margin-top:-8px">I'll help you remember things and cheer you on. I get SO happy when you finish tasks!</p></div>
+   <label class="f">What should I call you?</label><input class="input" id="oName" placeholder="Your name" autocomplete="off">
+   <label class="f">And what's my name?</label><input class="input" id="oPet" value="${esc(S.pet.name)}" maxlength="16">
+   <label class="f">Pick my color</label><div class="swatches">${COLORS.map(c => `<button class="sw ${c === color ? 'on' : ''}" style="background:${c}" data-c="${c}"></button>`).join('')}</div>
+   <div style="margin-top:22px"><button class="btn" id="oGo">Let's go! 🌱</button></div>
+   <p class="muted" style="font-size:13px;text-align:center">You can customize me more in the Buddy tab.</p>`, sh => {
+    sh.querySelector('.swatches').onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; color = b.dataset.c; S.pet.color = color; sh.querySelectorAll('.sw').forEach(x => x.classList.toggle('on', x === b)); sh.querySelector('#obPet').innerHTML = petSVG(S.pet, 'yay'); };
+    sh.querySelector('#oGo').onclick = () => {
+      S.name = sh.querySelector('#oName').value.trim() || 'friend'; S.pet.name = sh.querySelector('#oPet').value.trim() || 'Mochi';
+      S.onboarded = true; S.lastNudge = Date.now();
+      if (!S.tasks.length) addTask({ title: 'Say hi to ' + S.pet.name + ' (tap the circle!)', priority: 'low', due: ymd(new Date()) + 'T23:00' });
+      save(); closeSheet(); celebrateUntil = Date.now() + 3000; render();
+    };
+  });
+}
+
+/* ============ fx ============ */
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
+function hearts(n = 8, el) {
+  const src = el || $('#mainPet') || document.body, r = src.getBoundingClientRect();
+  for (let i = 0; i < n; i++) {
+    const h = document.createElement('div'); h.className = 'heart'; h.textContent = pick(['💚', '💗', '✨', '🌸', '💛']);
+    h.style.left = (r.left + r.width / 2 - 11 + (Math.random() - .5) * r.width * .6) + 'px'; h.style.top = (r.top + r.height * .4) + 'px';
+    h.style.setProperty('--dx', ((Math.random() - .5) * 120) + 'px'); h.style.setProperty('--r', ((Math.random() - .5) * 60) + 'deg'); h.style.animationDelay = (i * 60) + 'ms';
+    document.body.append(h); setTimeout(() => h.remove(), 1700 + i * 60);
+  }
+}
+
+/* ============ events ============ */
+const ACT = {
+  tab: el => { tab = el.dataset.tab; render(); window.scrollTo(0, 0); },
+  settings: openSettings,
+  addTask: () => openAddTask(tab === 'cal' ? { due: calSel + 'T17:00' } : {}),
+  toggle: el => { const t = S.tasks.find(x => x.id === el.dataset.id); if (t) completeTask(t); },
+  openTask: el => openTask(el.dataset.id),
+  openEvent: el => openEvent(el.dataset.id),
+  addEvent: () => openEvent(null, calSel),
+  filter: el => { listFilter = el.dataset.l; render(); },
+  newList: () => { const n = (prompt('New list name (e.g. Work, Errands)') || '').trim(); if (n && !S.lists.includes(n)) { S.lists.push(n); listFilter = n; save(); render(); } },
+  showDone: () => { showDone = !showDone; render(); },
+  calPrev: () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1); render(); },
+  calNext: () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1); render(); },
+  calDay: el => { calSel = el.dataset.d; render(); },
+  pet: el => petPet(el),
+  feed: openFeed, play,
+  custom: el => { const k = el.dataset.k; S.pet[k] = k === 'cheeks' ? !!el.dataset.v : el.dataset.v; save(); const y = scrollY; render(); scrollTo(0, y); hop('wiggle'); },
+  focusDone: () => { const t = S.tasks.find(x => x.id === S.focus.id); if (t) completeTask(t); },
+  focusStop: () => { S.focus = null; save(); render(); toast('Stopped. Every minute counted 💚'); }
+};
+document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (el && ACT[el.dataset.act]) ACT[el.dataset.act](el, e); });
+document.addEventListener('submit', e => {
+  if (e.target.dataset.form === 'quick') { e.preventDefault(); const v = e.target.q.value.trim(); if (v) { addTask({ title: v, due: ymd(new Date()) + 'T21:00' }); render(); toast('Added for today 🌱'); } }
+});
+document.addEventListener('change', e => { if (e.target.id === 'petName') { S.pet.name = e.target.value.trim() || 'Mochi'; save(); render(); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { if (!sheetOpen()) render(); setTimeout(checkNudge, 1200); } });
+setInterval(updateClock, 1000);
+setInterval(checkNudge, 20000);
+setInterval(() => { if (!sheetOpen() && !document.hidden && tab === 'today' && !document.activeElement.matches('input,textarea')) render(); }, 5 * 60000);
+
+render();
+if (!S.onboarded) setTimeout(onboard, 300); else setTimeout(checkNudge, 1500);
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

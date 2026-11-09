@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><body style="background:#f7efe1;margin:0;font-family:system-ui">
+<style>svg{width:100%;height:100%;overflow:visible}</style><div id="g" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:6px"></div>
+<script src="creature.js"></script>
+<script>
+const moods=['joy','yay','ok','sad','sleepy'];
+const list = location.hash==='#rand' ? Array.from({length:16},()=>SQ.randomize()) : SQ.PRESETS;
+document.getElementById('g').innerHTML = list.map((p,i)=>`<div style="background:#fffaf2;border-radius:14px;text-align:center;font-size:12px"><div style="height:150px">${SQ.render(p, location.hash==='#moods'?moods[i%5]:'joy')}</div>${p.label||p.material+'/'+p.ears}</div>`).join('');
+</script>
